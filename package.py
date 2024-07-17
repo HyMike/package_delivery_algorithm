@@ -1,6 +1,6 @@
 #Store package data
 class Packages:
-    def __init__(self, ID, street, city, state, zip,deadline,weight, status,departure_time,delivery_time):
+    def __init__(self, ID, street, city, state, zip,deadline,weight,status,departure_time,delivery_time):
         self.ID = ID
         self.street = street
         self.city = city
@@ -32,3 +32,23 @@ class Packages:
             else:
                 self.street = "300 State St"
                 self.zip = "84103"
+
+#Using package.CSV file to create a package object that contains all the delivery information.
+    def loading_package_data(file, package_hash_table):
+        with open("CSV/WGUPS_Package.csv") as packages:
+            package_info = csv.reader(packages, delimiter=',')
+            next(package_info)
+            for package in package_info:
+                package_ID = int(package[0])
+                package_street = package[1]
+                package_city = package[2]
+                package_state = package[3]
+                package_zip = package[4]
+                package_deadline = package[5]
+                package_weight = package[6]
+                package_status = "At the Hub"
+                package_departure_time = None
+                package_delivery_time = None
+
+                package_data = Packages(package_ID, package_street, package_city, package_state, package_zip, package_deadline, package_weight, package_status, package_departure_time, package_delivery_time)
+                package_hash_table.insert(package_ID, package_data)

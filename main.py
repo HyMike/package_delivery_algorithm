@@ -1,21 +1,22 @@
-Michael Hy
-Student ID: 010920685
+# Michael Hy
+# Student ID: 010920685
 
 import csv
 import datetime
 
 # Load the distance table CSV file and package CSV file
 def load_csv_files():
-    with open("CSVFiles/addressCSV.csv") as addyCSV:
-        AddressCSV = csv.reader(addyCSV)
-        AddressCSV = list(AddressCSV)
-    with open("CSVFiles/distanceCSV.csv") as disCSV:
-        DistanceCSV = csv.reader(disCSV)
-        DistanceCSV = list(DistanceCSV)
-    return AddressCSV, DistanceCSV
+    with open("CSV/Delivery_Address.csv") as delivery_addresses:
+        address_CSV = csv.reader(delivery_addresses)
+        address_list = list(address_CSV)
+    with open("CSV/Package_Distance.csv") as package_distance:
+        distance_CSV = csv.reader(package_distance)
+        distance_list = list(distance_CSV)
+    return address_list, distance_list
+
 
 # Address and Distance CSV files loaded into memory
-AddressCSV, DistanceCSV = load_csv_files()
+address_list, distance_list = load_csv_files()
 
 from hash_table import HashTableWChains
 from packages import Packages, loadPackageData
@@ -33,11 +34,11 @@ truck2 = Trucks(18, 0.0, "4001 South 700 East", datetime.timedelta(hours=11), [2
 truck3 = Trucks(18, 0.0, "4001 South 700 East", datetime.timedelta(hours=9, minutes=5), [6, 7, 8, 10, 11, 12, 17, 21, 22, 23, 24, 25, 33, 39])
 
 # Deliver packages for each truck
-truckDeliverPackages(truck1, packageHash, AddressCSV, DistanceCSV)
-truckDeliverPackages(truck3, packageHash, AddressCSV, DistanceCSV)
+truckDeliverPackages(truck1, packageHash, address_list, distance_list)
+truckDeliverPackages(truck3, packageHash, address_list, distance_list)
 # Ensure truck 2 doesn't leave until either truck 1 or 3 has returned
 truck2.departTime = min(truck1.time, truck3.time)
-truckDeliverPackages(truck2, packageHash, AddressCSV, DistanceCSV)
+truckDeliverPackages(truck2, packageHash, address_list, distance_list)
 
 # Title
 print("Western Governors University Parcel Service")
