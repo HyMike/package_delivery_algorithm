@@ -33,7 +33,7 @@ class Packages:
                 self.street = "300 State St"
                 self.zip = "84103"
 
-#Using package.CSV file to create a package object that contains all the delivery information.
+#Using package.CSV file to create a package object that contains all the delivery information, so we can use it.
     def loading_package_data(file, package_hash_table):
         with open("CSV/WGUPS_Package.csv") as packages:
             package_info = csv.reader(packages, delimiter=',')

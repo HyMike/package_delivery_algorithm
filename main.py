@@ -3,6 +3,10 @@
 
 import csv
 import datetime
+import chain_hash_table
+import package
+import trucks
+
 
 # Load the distance table CSV file and package CSV file
 def load_csv_files():
@@ -18,9 +22,6 @@ def load_csv_files():
 # Address and Distance CSV files loaded into memory
 address_list, distance_list = load_csv_files()
 
-from hash_table import HashTableWChains
-from packages import Packages, loadPackageData
-from trucks import Trucks, truckDeliverPackages
 
 # Initialize the hash table
 packageHash = HashTableWChains()
