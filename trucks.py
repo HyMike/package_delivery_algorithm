@@ -1,5 +1,6 @@
 import datetime
 
+#Create a Truck Object that allows to track it's location, time and packages.
 class Trucks:
     def __init__(self, speed, miles, current_location, departure_time, packages):
         self.speed = speed

@@ -25,17 +25,22 @@ address_list, distance_list = load_csv_files()
 # Initialize the hash table
 packages_table = CreateHashMap()
 
-
-def addresss(address, AddressCSV):
-    for row in AddressCSV:
+#Takes the address list and find the minimum distance for the next address.
+def get_nearest_address(address):
+    for row in address_list:
         if address in row[2]:
             return int(row[0])
 
-def Betweenst(addy1, addy2, DistanceCSV):
-    distance = DistanceCSV[addy1][addy2]
-    if distance == '':
-        distance = DistanceCSV[addy2][addy1]
-    return float(distance)
+def address_distances(address, address2, distance_list):
+    address_distance = distance_list[address][address2]
+    if address_distance == '':
+        address_distance = distance_list[address2][address]
+    return float(address_distance)
+
+
+# Load package data into the hash table
+loading_package_data('CSV/WGUPS_Package.csv', packages_table)
+
 
 def truckDeliverPackages(truck, packageHash, AddressCSV, DistanceCSV):
     enroute = []
@@ -64,8 +69,7 @@ def truckDeliverPackages(truck, packageHash, AddressCSV, DistanceCSV):
         nextPackage.deliveryTime = truck.time
         nextPackage.departureTime = truck.departTime
 
-# Load package data into the hash table
-loading_package_data('CSV/WGUPS_Package.csv', packages_table)
+
 
 
 # Manually load trucks and assign departure times
