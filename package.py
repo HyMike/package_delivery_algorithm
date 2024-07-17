@@ -1,4 +1,6 @@
 #Store package data
+import csv
+import datetime
 class Packages:
     def __init__(self, ID, street, city, state, zip,deadline,weight,status,departure_time,delivery_time):
         self.ID = ID
@@ -12,7 +14,7 @@ class Packages:
         self.departure_time = None
         self.delivery_time = None
     def __str__(self):
-        return "ID: %s, %-20s, %s, %s,%s, Deadline: %s,%s,%s,Departure Time: %s,Delivery Time: %s" % (self.ID, self.street, self.city, self.state, self.zip, self.deadline, self.weight, self.status, self.departureTime, self.deliveryTime)
+        return "ID: %s, %s, %s, %s,%s, Deadline: %s,Weight: %s,Status: %s,Departure Time: %s,Delivery Time: %s" % (self.ID, self.street, self.city, self.state, self.zip, self.deadline, self.weight, self.status, self.departure_time, self.delivery_time)
     #status_update method will update the delivery status. At hub, delivered.
     #Time is needed to compare with depart time and delivery time to give status. Given By User
     def status_update(self, time):
@@ -34,21 +36,22 @@ class Packages:
                 self.zip = "84103"
 
 #Using package.CSV file to create a package object that contains all the delivery information, so we can use it.
-    def loading_package_data(file, package_hash_table):
-        with open("CSV/WGUPS_Package.csv") as packages:
-            package_info = csv.reader(packages, delimiter=',')
-            next(package_info)
-            for package in package_info:
-                package_ID = int(package[0])
-                package_street = package[1]
-                package_city = package[2]
-                package_state = package[3]
-                package_zip = package[4]
-                package_deadline = package[5]
-                package_weight = package[6]
-                package_status = "At the Hub"
-                package_departure_time = None
-                package_delivery_time = None
+def loading_package_data(file, package_hash_table):
+    with open("CSV/WGUPS_Package.csv") as packages:
+        package_info = csv.reader(packages, delimiter=',')
+        next(package_info)
+        for package in package_info:
+            package_ID = int(package[0])
+            package_street = package[1]
+            package_city = package[2]
+            package_state = package[3]
+            package_zip = package[4]
+            package_deadline = package[5]
+            package_weight = package[6]
+            package_status = "At the Hub"
+            package_departure_time = None
+            package_delivery_time = None
 
-                package_data = Packages(package_ID, package_street, package_city, package_state, package_zip, package_deadline, package_weight, package_status, package_departure_time, package_delivery_time)
-                package_hash_table.insert(package_ID, package_data)
+            package_data = Packages(package_ID, package_street, package_city, package_state, package_zip, package_deadline, package_weight, package_status, package_departure_time, package_delivery_time)
+            package_hash_table.insert(package_ID, package_data)
+            return package_hash_table
