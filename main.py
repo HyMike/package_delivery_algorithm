@@ -42,10 +42,6 @@ loading_package_data("CSV/WGUPS_Package.csv", packages_table)
 
 
 #Loading the trucks and assign departure times
-# truck1 = Trucks(18, 0.0, "4001 South 700 East", datetime.timedelta(hours=8), [1, 13, 14, 15, 16, 19, 20, 27, 29, 30, 31, 34, 37, 40])
-# truck2 = Trucks(18, 0.0, "4001 South 700 East", datetime.timedelta(hours=11), [2, 3, 4, 5, 9, 18, 26, 28, 32, 35, 36, 38])
-# truck3 = Trucks(18, 0.0, "4001 South 700 East", datetime.timedelta(hours=9, minutes=5), [6, 7, 8, 10, 11, 12, 17, 21, 22, 23, 24, 25, 33, 39])
-
 truck1 = Trucks(18, 0.0, "4001 South 700 East", datetime.timedelta(hours=8), [1, 13, 14, 15, 16, 19, 20, 27, 29, 30, 31, 34, 37, 40])
 truck2 = Trucks(18, 0.0, "4001 South 700 East", datetime.timedelta(hours=9, minutes=5), [2, 3, 4, 5, 7, 8, 9, 10, 11, 12, 18, 21, 22, 23, 24, 25, 26, 28, 32, 33, 36, 38, 39])
 truck3 = Trucks(18, 0.0, "4001 South 700 East", datetime.timedelta(hours=11), [6, 17, 35])
@@ -148,10 +144,13 @@ def display_package_info(packages_table, trucks, start_time, end_time):
                 delivering_truck_number = index  # Use index of truck as its number
                 break
 
+        # Shorten the address to a maximum of 25 characters (or any number you prefer)
+        shortened_address = package.street[:25]  # Adjust 25 to your preferred length
+
         # Formatting package information
         row = [
             str(package.ID).ljust(4),
-            package.street.ljust(30),
+            shortened_address.ljust(30),
             package.city.ljust(20),
             package.state.ljust(10),
             package.zip.ljust(10),
