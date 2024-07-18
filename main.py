@@ -135,7 +135,7 @@ def display_package_info(packages_table, trucks, start_time, end_time):
     for package_id in range(1, 41):
         package = packages_table.search(package_id)
         # Ensure the status and address are updated
-        package.status_update(start_time)
+        package.status_update(end_time)
 
         delivered_time = None
         delivering_truck_number = None
@@ -156,7 +156,7 @@ def display_package_info(packages_table, trucks, start_time, end_time):
             package.state.ljust(10),
             package.zip.ljust(10),
             package.deadline.ljust(15),
-            str(package.weight).ljust(10),
+            f"{package.weight} kg".ljust(10),
             package.status.ljust(15),
             str(package.departure_time).ljust(15),
             str(delivered_time).ljust(20),
