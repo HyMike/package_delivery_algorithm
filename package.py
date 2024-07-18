@@ -18,6 +18,15 @@ class Packages:
     #status_update method will update the delivery status. At hub, delivered.
     #Time is needed to compare with depart time and delivery time to give status. Given By User
     def status_update(self, time):
+        # WGUPS does not know the correct address for ID= 9 (410 S. State St., Salt Lake City, UT 84111) until 10:20 a.m
+        if self.ID == 9:
+            if time > datetime.timedelta(hours=10, minutes=20):
+                self.street = "410 S State St"
+                self.zip = "84111"
+            else:
+                self.street = "300 State St"
+                self.zip = "84103"
+
         if self.delivery_time == None:
             self.status = "At the hub"
         elif time < self.departure_time:
@@ -26,14 +35,7 @@ class Packages:
             self.status = "En route"
         else:
             self.status = "Delivered"
-    # WGUPS does not know the correct address for ID= 9 (410 S. State St., Salt Lake City, UT 84111) until 10:20 a.m
-        if self.ID == 9:
-            if time > datetime.timedelta (hours=10, minutes= 20):
-                self.street = "410 S State St"
-                self.zip = "84111"
-            else:
-                self.street = "300 State St"
-                self.zip = "84103"
+
 
 #Using package.CSV file to create a package object that contains all the delivery information, so we can use it.
 def loading_package_data(file, package_hash_table):

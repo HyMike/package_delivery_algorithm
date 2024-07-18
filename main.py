@@ -42,6 +42,10 @@ loading_package_data("CSV/WGUPS_Package.csv", packages_table)
 
 
 #Loading the trucks and assign departure times
+# truck1 = Trucks(18, 0.0, "4001 South 700 East", datetime.timedelta(hours=8), [1, 13, 14, 15, 16, 19, 20, 27, 29, 30, 31, 34, 37, 40])
+# truck2 = Trucks(18, 0.0, "4001 South 700 East", datetime.timedelta(hours=11), [2, 3, 4, 5, 9, 18, 26, 28, 32, 35, 36, 38])
+# truck3 = Trucks(18, 0.0, "4001 South 700 East", datetime.timedelta(hours=9, minutes=5), [6, 7, 8, 10, 11, 12, 17, 21, 22, 23, 24, 25, 33, 39])
+
 truck1 = Trucks(18, 0.0, "4001 South 700 East", datetime.timedelta(hours=8), [1, 13, 14, 15, 16, 19, 20, 27, 29, 30, 31, 34, 37, 40])
 truck2 = Trucks(18, 0.0, "4001 South 700 East", datetime.timedelta(hours=9, minutes=5), [2, 3, 4, 5, 7, 8, 9, 10, 11, 12, 18, 21, 22, 23, 24, 25, 26, 28, 32, 33, 36, 38, 39])
 truck3 = Trucks(18, 0.0, "4001 South 700 East", datetime.timedelta(hours=11), [6, 17, 35])
@@ -91,30 +95,6 @@ truck3.departure_time = min(truck1.time, truck2.time)
 deliver_package(truck3, packages_table, address_list, distance_list)
 
 
-print("The overall miles are:", (truck1.miles + truck2.miles + truck3.miles))
-
-def check_package_status_in_interval(packages_table, start_time, end_time):
-    for package_id in range(1, 41):
-        package = packages_table.search(package_id)
-        if package.delivery_time and start_time <= package.delivery_time <= end_time:
-            truck_delivered = None
-            if package_id in truck1.get_delivered_packages():
-                truck_delivered = "Truck 1"
-            elif package_id in truck2.get_delivered_packages():
-                truck_delivered = "Truck 2"
-            elif package_id in truck3.get_delivered_packages():
-                truck_delivered = "Truck 3"
-
-            if truck_delivered:
-                package.status = "Delivered"
-            else:
-                package.status = "En route"
-        elif package.departure_time and package.departure_time <= start_time:
-            package.status = "En route"
-        else:
-            package.status = "At the Hub"
-        print(package)
-
 def get_user_input_time(prompt):
     user_time = input(prompt)
     try:
@@ -158,16 +138,8 @@ def display_package_info(packages_table, trucks, start_time, end_time):
     # Loop through each package ID
     for package_id in range(1, 41):
         package = packages_table.search(package_id)
+        package.status_update(start_time)  # Ensure the status and address are updated
 
-        # Determine the status of the package
-        if package.delivery_time and start_time <= package.delivery_time <= end_time:
-            status = "Delivered"
-        elif package.departure_time and package.departure_time <= end_time and (not package.delivery_time or package.delivery_time > end_time):
-            status = "En Route"
-        else:
-            status = "At the Hub"
-
-        # Retrieve delivery details
         delivered_time = None
         delivering_truck_number = None
         for index, truck in enumerate(trucks, start=1):
@@ -185,14 +157,14 @@ def display_package_info(packages_table, trucks, start_time, end_time):
             package.zip.ljust(10),
             package.deadline.ljust(15),
             str(package.weight).ljust(10),
-            status.ljust(15),
+            package.status.ljust(15),
             str(package.departure_time).ljust(15),
             str(delivered_time).ljust(20),
             str(delivering_truck_number).ljust(10)
         ]
         print(" ".join(row))
 
-
+print("Welcome to WGUPS Routing!")
 while True:
     # Get the time interval from the user
     start_time, end_time = get_time_interval_from_user()
