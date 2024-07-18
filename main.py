@@ -5,7 +5,7 @@ import csv
 import datetime
 from chain_hash_table import CreateHashMap
 from package import Packages, loading_package_data
-
+from trucks import Trucks
 
 
 # Load the distance table CSV file and package CSV file
@@ -21,12 +21,11 @@ def load_csv_files():
 # Address and Distance CSV files loaded into memory
 address_list, distance_list = load_csv_files()
 
-
 # Initialize the hash table
 packages_table = CreateHashMap()
 
 #Takes the address list and find the minimum distance for the next address.
-def get_nearest_address(address):
+def get_nearest_address(address,address_list):
     for row in address_list:
         if address in row[2]:
             return int(row[0])
@@ -39,66 +38,146 @@ def address_distances(address, address2, distance_list):
 
 
 # Load package data into the hash table
-loading_package_data('CSV/WGUPS_Package.csv', packages_table)
+loading_package_data("CSV/WGUPS_Package.csv", packages_table)
 
 
-def truckDeliverPackages(truck, packageHash, AddressCSV, DistanceCSV):
+#Loading the trucks and assign departure times
+#original
+# truck1 = Trucks(18, 0.0, "4001 South 700 East", datetime.timedelta(hours=8), [1, 13, 14, 15, 16, 19, 20, 27, 29, 30, 31, 34, 37, 40])
+# truck2 = Trucks(18, 0.0, "4001 South 700 East", datetime.timedelta(hours=11), [2, 3, 4, 5, 9, 18, 26, 28, 32, 35, 36, 38])
+# truck3 = Trucks(18, 0.0, "4001 South 700 East", datetime.timedelta(hours=9, minutes=5), [6, 7, 8, 10, 11, 12, 17, 21, 22, 23, 24, 25, 33, 39])
+
+truck1 = Trucks(18, 0.0, "4001 South 700 East", datetime.timedelta(hours=8), [1, 13, 14, 15, 16, 19, 20, 27, 29, 30, 31, 34, 37, 40])
+truck2 = Trucks(18, 0.0, "4001 South 700 East", datetime.timedelta(hours=9, minutes=5), [2, 3, 4, 5, 7, 8, 9, 10, 11, 12, 18, 21, 22, 23, 24, 25, 26, 28, 32, 33, 36, 39])
+truck3 = Trucks(18, 0.0, "4001 South 700 East", datetime.timedelta(hours=11), [6, 17, 35, 38])
+
+
+def deliver_package(truck, packages_table, address_list, distance_list):
     enroute = []
-    for packageID in truck.packages:
-        package = packageHash.search(packageID)
+    for package_ID in truck.packages:
+        package = packages_table.search(package_ID)
         enroute.append(package)
+
 
     truck.packages.clear()
 
     while len(enroute) > 0:
-        nextAddy = 2000
-        nextPackage = None
+        next_address = 1500
+        next_package = None
+
         for package in enroute:
+            # print(package)
             if package.ID in [25, 6]:
-                nextPackage = package
-                nextAddy = Betweenst(addresss(truck.currentLocation, AddressCSV), addresss(package.street, AddressCSV), DistanceCSV)
+                next_package = package
+                next_address = address_distances(get_nearest_address(truck.current_location, address_list), get_nearest_address(package.street, address_list), distance_list)
                 break
-            if Betweenst(addresss(truck.currentLocation, AddressCSV), addresss(package.street, AddressCSV), DistanceCSV) <= nextAddy:
-                nextAddy = Betweenst(addresss(truck.currentLocation, AddressCSV), addresss(package.street, AddressCSV), DistanceCSV)
-                nextPackage = package
-        truck.packages.append(nextPackage.ID)
-        enroute.remove(nextPackage)
-        truck.miles += nextAddy
-        truck.currentLocation = nextPackage.street
-        truck.time += datetime.timedelta(hours=nextAddy / 18)
-        nextPackage.deliveryTime = truck.time
-        nextPackage.departureTime = truck.departTime
+            if address_distances(get_nearest_address(truck.current_location, address_list), get_nearest_address(package.street, address_list), distance_list) <= next_address:
+
+                next_address = address_distances(get_nearest_address(truck.current_location, address_list), get_nearest_address(package.street, address_list), distance_list)
+                next_package = package
+
+        # truck.packages.append(next_package.ID) #original before adding deliver package
+
+        truck.deliver_package(next_package.ID)  # Mark package as delivered by this truck
+        enroute.remove(next_package)
+        truck.miles += next_address
+        truck.current_location = next_package.street
+        truck.time += datetime.timedelta(hours=next_address / 18)
+        next_package.delivery_time = truck.time
+        next_package.departure_time = truck.departure_time
 
 
 
+# Deliver packages for each truck
+deliver_package(truck1, packages_table, address_list, distance_list)
+deliver_package(truck2, packages_table, address_list, distance_list)
+# Ensure truck 3 doesn't leave until either truck 1 or 2 has returned
+truck3.departure_time = min(truck1.time, truck2.time)
+deliver_package(truck3, packages_table, address_list, distance_list)
 
-# Manually load trucks and assign departure times
-# truck1 = Trucks(18, 0.0, "4001 South 700 East", datetime.timedelta(hours=8), [1, 13, 14, 15, 16, 19, 20, 27, 29, 30, 31, 34, 37, 40])
-# truck2 = Trucks(18, 0.0, "4001 South 700 East", datetime.timedelta(hours=11), [2, 3, 4, 5, 9, 18, 26, 28, 32, 35, 36, 38])
-# truck3 = Trucks(18, 0.0, "4001 South 700 East", datetime.timedelta(hours=9, minutes=5), [6, 7, 8, 10, 11, 12, 17, 21, 22, 23, 24, 25, 33, 39])
-#
-# # Deliver packages for each truck
-# truckDeliverPackages(truck1, packageHash, address_list, distance_list)
-# truckDeliverPackages(truck3, packageHash, address_list, distance_list)
-# # Ensure truck 2 doesn't leave until either truck 1 or 3 has returned
-# truck2.departTime = min(truck1.time, truck3.time)
-# truckDeliverPackages(truck2, packageHash, address_list, distance_list)
-#
-# # Title
-# print("Western Governors University Parcel Service")
-# # Total miles for all of the trucks
-# print("The overall miles are:", (truck1.miles + truck2.miles + truck3.miles))
-#
-# # Loop to get user input for package status at a given time
-# while True:
-#     userTime = input("Please enter a time for which you'd like to see the status of each package. Format: HH:MM. ")
-#     (h, m) = userTime.split(":")
-#     timeChange = datetime.timedelta(hours=int(h), minutes=int(m))
-#     try:
-#         singleEntry = [int(input("Enter the Package ID or nothing at all."))]
-#     except ValueError:
-#         singleEntry = range(1, 41)
-#     for packageID in singleEntry:
-#         package = packageHash.search(packageID)
-#         package.statusUpdate(timeChange)
-#         print(str(package))
+
+print("The overall miles are:", (truck1.miles + truck2.miles + truck3.miles))
+
+
+def get_user_input_time(prompt):
+    user_time = input(prompt)
+    try:
+        h, m = map(int, user_time.split(":"))
+        return datetime.timedelta(hours=h, minutes=m)
+    except ValueError:
+        print("Invalid time format. Please use HH:MM format.")
+        return None
+
+def get_time_interval_from_user():
+    start_time = get_user_input_time("Please enter the start of the interval (HH:MM): ")
+    if start_time is None:
+        return None, None
+    end_time = get_user_input_time("Please enter the end of the interval (HH:MM): ")
+    if end_time is None:
+        return None, None
+    if start_time >= end_time:
+        print("Start time must be earlier than end time. Please try again.")
+        return None, None
+    return start_time, end_time
+
+# Function to display package information with delivery details
+def display_package_info(packages_table, trucks, start_time, end_time):
+    # Header
+    header = [
+        "ID".ljust(4),
+        "Address".ljust(30),
+        "City".ljust(20),
+        "State".ljust(10),
+        "Zip Code".ljust(10),
+        "Deadline".ljust(15),
+        "Weight".ljust(10),
+        "Status".ljust(15),
+        "Departed".ljust(15),
+        "Delivered Time".ljust(20),
+        "Truck #".ljust(10)
+    ]
+    print(" ".join(header))
+
+    # Loop through each package ID
+    for package_id in range(1, 41):
+        package = packages_table.search(package_id)
+
+        # Determine the status of the package
+        if package.delivery_time and start_time <= package.delivery_time <= end_time:
+            status = "Delivered"
+        elif package.departure_time and package.departure_time <= end_time and (not package.delivery_time or package.delivery_time > end_time):
+            status = "En Route"
+        else:
+            status = "At the Hub"
+
+        # Retrieve delivery details
+        delivered_time = None
+        delivering_truck_number = None
+        for index, truck in enumerate(trucks, start=1):
+            if package_id in truck.get_delivered_packages():
+                delivered_time = package.delivery_time
+                delivering_truck_number = index  # Use index of truck as its number
+                break
+
+        # Formatting package information
+        row = [
+            str(package.ID).ljust(4),
+            package.street.ljust(30),
+            package.city.ljust(20),
+            package.state.ljust(10),
+            package.zip.ljust(10),
+            package.deadline.ljust(15),
+            str(package.weight).ljust(10),
+            status.ljust(15),
+            str(package.departure_time).ljust(15),
+            str(delivered_time).ljust(20),
+            str(delivering_truck_number).ljust(10)
+        ]
+        print(" ".join(row))
+
+# Get the time interval from the user
+start_time, end_time = get_time_interval_from_user()
+if start_time and end_time:
+    display_package_info(packages_table, [truck1, truck2, truck3], start_time, end_time)
+else:
+    print("Invalid time interval.")
