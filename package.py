@@ -1,6 +1,8 @@
-#Store package data
+
 import csv
 import datetime
+
+#Store package data
 class Packages:
     def __init__(self, ID, street, city, state, zip,deadline,weight,status,departure_time,delivery_time):
         self.ID = ID
@@ -13,12 +15,17 @@ class Packages:
         self.status = status
         self.departure_time = None
         self.delivery_time = None
+
     def __str__(self):
         return "ID: %s, %s, %s, %s,%s, Deadline: %s,Weight: %skg,Status: %s,Departure Time: %s,Delivery Time: %s" % (self.ID, self.street, self.city, self.state, self.zip, self.deadline, self.weight, self.status, self.departure_time, self.delivery_time)
-    #status_update method will update the delivery status. At hub, delivered.
-    #Time is needed to compare with depart time and delivery time to give status. Given By User
+
+
+
     def status_update(self, time):
-        # WGUPS does not know the correct address for ID= 9 (410 S. State St., Salt Lake City, UT 84111) until 10:20 a.m
+        """
+          status_update method will update the delivery status. At hub, delivered, etc.
+        """
+        # We don't know the correct address for ID= 9 (410 S. State St., Salt Lake City, UT 84111) until 10:20 a.m
         if self.ID == 9:
             if time > datetime.timedelta(hours=10, minutes=20):
                 self.street = "410 S State St"
@@ -37,7 +44,7 @@ class Packages:
             self.status = "Delivered"
 
 
-#Using package.CSV file to create a package object that contains all the delivery information, so we can use it.
+#Convert package CSV file to a object(s) that stores customer package data and easy access by other objects.
 def loading_package_data(file, package_hash_table):
     with open(file) as packages:
         package_info = csv.reader(packages, delimiter=',')
