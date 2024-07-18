@@ -167,14 +167,15 @@ def display_package_info(packages_table, trucks, start_time, end_time):
 print("Welcome to WGUPS Routing!")
 while True:
     # Get the time interval from the user
+    print("Total miles for all trucks:", truck1.miles + truck2.miles + truck3.miles)
     start_time, end_time = get_time_interval_from_user()
     if start_time is not None and end_time is not None:
         display_package_info(packages_table, [truck1, truck2, truck3], start_time, end_time)
+        another_check = input("Do you want to check another time interval? (yes/no): ")
+        if another_check.lower() != "yes":
+            break
     else:
         print("Invalid time interval.")
-    another_check = input("Do you want to check another time interval? (yes/no): ")
-    if another_check.lower() != "yes":
-        break
 
-print("Total miles for all trucks:", truck1.miles + truck2.miles + truck3.miles)
+
 
