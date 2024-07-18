@@ -48,8 +48,8 @@ loading_package_data("CSV/WGUPS_Package.csv", packages_table)
 # truck3 = Trucks(18, 0.0, "4001 South 700 East", datetime.timedelta(hours=9, minutes=5), [6, 7, 8, 10, 11, 12, 17, 21, 22, 23, 24, 25, 33, 39])
 
 truck1 = Trucks(18, 0.0, "4001 South 700 East", datetime.timedelta(hours=8), [1, 13, 14, 15, 16, 19, 20, 27, 29, 30, 31, 34, 37, 40])
-truck2 = Trucks(18, 0.0, "4001 South 700 East", datetime.timedelta(hours=9, minutes=5), [2, 3, 4, 5, 7, 8, 9, 10, 11, 12, 18, 21, 22, 23, 24, 25, 26, 28, 32, 33, 36, 39])
-truck3 = Trucks(18, 0.0, "4001 South 700 East", datetime.timedelta(hours=11), [6, 17, 35, 38])
+truck2 = Trucks(18, 0.0, "4001 South 700 East", datetime.timedelta(hours=9, minutes=5), [2, 3, 4, 5, 7, 8, 9, 10, 11, 12, 18, 21, 22, 23, 24, 25, 26, 28, 32, 33, 36, 38, 39])
+truck3 = Trucks(18, 0.0, "4001 South 700 East", datetime.timedelta(hours=11), [6, 17, 35])
 
 
 def deliver_package(truck, packages_table, address_list, distance_list):
@@ -98,27 +98,64 @@ deliver_package(truck3, packages_table, address_list, distance_list)
 
 print("The overall miles are:", (truck1.miles + truck2.miles + truck3.miles))
 
+def check_package_status_in_interval(packages_table, start_time, end_time):
+    for package_id in range(1, 41):
+        package = packages_table.search(package_id)
+        if package.delivery_time and start_time <= package.delivery_time <= end_time:
+            truck_delivered = None
+            if package_id in truck1.get_delivered_packages():
+                truck_delivered = "Truck 1"
+            elif package_id in truck2.get_delivered_packages():
+                truck_delivered = "Truck 2"
+            elif package_id in truck3.get_delivered_packages():
+                truck_delivered = "Truck 3"
+
+            if truck_delivered:
+                package.status = "Delivered"
+            else:
+                package.status = "En route"
+        elif package.departure_time and package.departure_time <= start_time:
+            package.status = "En route"
+        else:
+            package.status = "At the Hub"
+        print(package)
 
 def get_user_input_time(prompt):
     user_time = input(prompt)
     try:
-        h, m = map(int, user_time.split(":"))
-        return datetime.timedelta(hours=h, minutes=m)
+        time_object = datetime.datetime.strptime(user_time, '%I:%M %p')
+        return datetime.timedelta(hours=time_object.hour, minutes=time_object.minute)
     except ValueError:
-        print("Invalid time format. Please use HH:MM format.")
+        print("Invalid time format. Please use HH:MM AM/PM format.")
         return None
+    # try:
+    #     h, m = map(int, user_time.split(":"))
+    #     return datetime.timedelta(hours=h, minutes=m)
+    # except ValueError:
+    #     print("Invalid time format. Please use HH:MM format.")
+    #     return None
 
 def get_time_interval_from_user():
-    start_time = get_user_input_time("Please enter the start of the interval (HH:MM): ")
+    start_time = get_user_input_time("Please enter the start of the interval (HH:MM AM/PM): ")
     if start_time is None:
         return None, None
-    end_time = get_user_input_time("Please enter the end of the interval (HH:MM): ")
+    end_time = get_user_input_time("Please enter the end of the interval (HH:MM AM/PM): ")
     if end_time is None:
         return None, None
     if start_time >= end_time:
         print("Start time must be earlier than end time. Please try again.")
         return None, None
     return start_time, end_time
+    # start_time = get_user_input_time("Please enter the start of the interval (HH:MM): ")
+    # if start_time is None:
+    #     return None, None
+    # end_time = get_user_input_time("Please enter the end of the interval (HH:MM): ")
+    # if end_time is None:
+    #     return None, None
+    # if start_time >= end_time:
+    #     print("Start time must be earlier than end time. Please try again.")
+    #     return None, None
+    # return start_time, end_time
 
 # Function to display package information with delivery details
 def display_package_info(packages_table, trucks, start_time, end_time):
@@ -175,9 +212,26 @@ def display_package_info(packages_table, trucks, start_time, end_time):
         ]
         print(" ".join(row))
 
-# Get the time interval from the user
-start_time, end_time = get_time_interval_from_user()
-if start_time and end_time:
-    display_package_info(packages_table, [truck1, truck2, truck3], start_time, end_time)
-else:
-    print("Invalid time interval.")
+# display_package_info(packages_table, [truck1, truck2, truck3])
+
+
+
+while True:
+    # Get the time interval from the user
+    start_time, end_time = get_time_interval_from_user()
+    if start_time is not None and end_time is not None:
+        display_package_info(packages_table, [truck1, truck2, truck3], start_time, end_time)
+    else:
+        print("Invalid time interval.")
+    another_check = input("Do you want to check another time interval? (yes/no): ")
+    if another_check.lower() != "yes":
+        break
+
+print("Total miles for all trucks:", truck1.miles + truck2.miles + truck3.miles)
+
+# # Get the time interval from the user
+# start_time, end_time = get_time_interval_from_user()
+# if start_time and end_time:
+#     display_package_info(packages_table, [truck1, truck2, truck3], start_time, end_time)
+# else:
+#     print("Invalid time interval.")
