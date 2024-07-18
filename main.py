@@ -8,8 +8,8 @@ from package import Packages, loading_package_data
 from trucks import Trucks
 
 
-# Load the distance table CSV file and package CSV file
-def load_csv_files():
+#Convert the delivery address distance CSV file and package CSV file to list that can be manipulated.
+def convert_csv_files():
     with open("CSV/Delivery_Address.csv") as delivery_addresses:
         address_CSV = csv.reader(delivery_addresses)
         address_list = list(address_CSV)
@@ -18,10 +18,9 @@ def load_csv_files():
         distance_list = list(distance_CSV)
     return address_list, distance_list
 
-# Address and Distance CSV files loaded into memory
-address_list, distance_list = load_csv_files()
+address_list, distance_list = convert_csv_files()
 
-# Initialize the hash table
+# Initialize a chain hash map
 packages_table = CreateHashMap()
 
 #Takes the address list and find the minimum distance for the next address.
@@ -37,17 +36,18 @@ def address_distances(address, address2, distance_list):
     return float(address_distance)
 
 
-# Load package data into the hash table
+# Map package info onto the chain hash map.
 loading_package_data("CSV/WGUPS_Package.csv", packages_table)
 
 
-#Loading the trucks and assign departure times
+#Loading package to the trucks and assign departure times
 truck1 = Trucks(18, 0.0, "4001 South 700 East", datetime.timedelta(hours=8), [1, 13, 14, 15, 16, 19, 20, 27, 29, 30, 31, 34, 37, 40])
 truck2 = Trucks(18, 0.0, "4001 South 700 East", datetime.timedelta(hours=9, minutes=5), [2, 3, 4, 5, 7, 8, 9, 10, 11, 12, 18, 21, 22, 23, 24, 25, 26, 28, 32, 33, 36, 38, 39])
 truck3 = Trucks(18, 0.0, "4001 South 700 East", datetime.timedelta(hours=11), [6, 17, 35])
 
 
 def deliver_package(truck, packages_table, address_list, distance_list):
+    #list for package that marked for delivered..
     enroute = []
     for package_ID in truck.packages:
         package = packages_table.search(package_ID)
@@ -57,23 +57,24 @@ def deliver_package(truck, packages_table, address_list, distance_list):
     truck.packages.clear()
 
     while len(enroute) > 0:
+        #intializing variables
         next_address = 1500
         next_package = None
 
         for package in enroute:
-            # print(package)
+            #Handle case where it need to be the next package to be delivered.
             if package.ID in [25, 6]:
                 next_package = package
                 next_address = address_distances(get_nearest_address(truck.current_location, address_list), get_nearest_address(package.street, address_list), distance_list)
                 break
+            #Otherwise, the algorithm selects the package with the shortest distance from the truck’s current location.
             if address_distances(get_nearest_address(truck.current_location, address_list), get_nearest_address(package.street, address_list), distance_list) <= next_address:
 
                 next_address = address_distances(get_nearest_address(truck.current_location, address_list), get_nearest_address(package.street, address_list), distance_list)
                 next_package = package
 
-        # truck.packages.append(next_package.ID) #original before adding deliver package
-
-        truck.deliver_package(next_package.ID)  # Mark package as delivered by this truck
+        # Mark package as delivered by this truck
+        truck.deliver_package(next_package.ID)
         enroute.remove(next_package)
         truck.miles += next_address
         truck.current_location = next_package.street
@@ -83,9 +84,9 @@ def deliver_package(truck, packages_table, address_list, distance_list):
 
 
 
-# Deliver packages for each truck
 deliver_package(truck1, packages_table, address_list, distance_list)
 deliver_package(truck2, packages_table, address_list, distance_list)
+
 # Ensure truck 3 doesn't leave until either truck 1 or 2 has returned
 truck3.departure_time = min(truck1.time, truck2.time)
 deliver_package(truck3, packages_table, address_list, distance_list)
@@ -131,21 +132,21 @@ def display_package_info(packages_table, trucks, start_time, end_time):
     ]
     print(" ".join(header))
 
-    # Loop through each package ID
     for package_id in range(1, 41):
         package = packages_table.search(package_id)
-        package.status_update(start_time)  # Ensure the status and address are updated
+        # Ensure the status and address are updated
+        package.status_update(start_time)
 
         delivered_time = None
         delivering_truck_number = None
         for index, truck in enumerate(trucks, start=1):
             if package_id in truck.get_delivered_packages():
                 delivered_time = package.delivery_time
-                delivering_truck_number = index  # Use index of truck as its number
+                delivering_truck_number = index
                 break
 
-        # Shorten the address to a maximum of 25 characters (or any number you prefer)
-        shortened_address = package.street[:25]  # Adjust 25 to your preferred length
+        # Shorten the address to a maximum of 25 characters
+        shortened_address = package.street[:25]
 
         # Formatting package information
         row = [
@@ -163,9 +164,10 @@ def display_package_info(packages_table, trucks, start_time, end_time):
         ]
         print(" ".join(row))
 
+
+#Main Interface of Program
 print("Welcome to WGUPS Routing!")
 while True:
-    # Get the time interval from the user
     print("Total miles for all trucks:", truck1.miles + truck2.miles + truck3.miles)
     start_time, end_time = get_time_interval_from_user()
     if start_time is not None and end_time is not None:
