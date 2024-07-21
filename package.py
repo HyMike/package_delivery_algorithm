@@ -32,22 +32,12 @@ class Packages:
                 self.street = "300 State St"
                 self.zip = "84103"
 
-
         if not self.departure_time or time < self.departure_time:
             self.status = "At the hub"
         elif self.departure_time <= time < self.delivery_time:
             self.status = "En route"
         elif self.delivery_time and time >= self.delivery_time:
             self.status = "Delivered"
-
-        # if self.delivery_time == None:
-        #     self.status = "At the hub"
-        # elif time < self.departure_time:
-        #     self.status = "At the hub"
-        # elif time < self.delivery_time:
-        #     self.status = "En route"
-        # else:
-        #     self.status = "Delivered"
 
 
 #Convert package CSV file to a object(s) that stores customer package data and easy access by other objects.
