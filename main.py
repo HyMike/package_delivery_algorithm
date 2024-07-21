@@ -114,8 +114,17 @@ def get_time_interval_from_user():
     return start_time, end_time
 
 
+def specific_time_frame():
+    specific_time = get_user_input_time("Please enter a time that you would like to check the status of the packages and the trucks? (HH:MM AM/PM): ")
+    if specific_time is None:
+        return None, None
+    return specific_time
+
+
 # Function to display package information with delivery details
-def display_package_info(packages_table, trucks, start_time, end_time):
+# def display_package_info(packages_table, trucks, start_time, end_time):
+def display_package_info(packages_table, trucks, check_time):
+
     # Header
     header = [
         "ID".ljust(4),
@@ -135,7 +144,8 @@ def display_package_info(packages_table, trucks, start_time, end_time):
     for package_id in range(1, 41):
         package = packages_table.search(package_id)
         # Ensure the status and address are updated
-        package.status_update(end_time)
+        package.status_update(check_time)
+        # package.status_update(end_time)
 
         delivered_time = None
         delivering_truck_number = None
@@ -169,14 +179,42 @@ def display_package_info(packages_table, trucks, start_time, end_time):
 print("Welcome to WGUPS Routing!")
 while True:
     print("Total miles for all trucks:", truck1.miles + truck2.miles + truck3.miles)
-    start_time, end_time = get_time_interval_from_user()
-    if start_time is not None and end_time is not None:
-        display_package_info(packages_table, [truck1, truck2, truck3], start_time, end_time)
-        another_check = input("Do you want to check another time interval? (yes/no): ")
-        if another_check.lower() != "yes":
-            break
-    else:
-        print("Invalid time interval.")
 
+    # Prompt the user for the interface option
+    user_choice = input(
+        "Would you like to check the status of packages and trucks for a specific time or a specific interval?\nEnter 'time' for specific time or 'interval' for specific interval: ").strip().lower()
+
+    if user_choice == "time":
+        specific_time = specific_time_frame()
+        if specific_time is not None:
+            display_package_info(packages_table, [truck1, truck2, truck3], specific_time)
+        else:
+            print("Invalid time entered.")
+    elif user_choice == "interval":
+        start_time, end_time = get_time_interval_from_user()
+        if start_time is not None and end_time is not None:
+            display_package_info(packages_table, [truck1, truck2, truck3], end_time)
+        else:
+            print("Invalid time interval entered.")
+    else:
+        print("Invalid choice. Please enter 'time' or 'interval'.")
+
+    another_check = input("Do you want to check another time interval or specific time? (yes/no): ")
+    if another_check.lower() != "yes":
+        break
+
+
+#original
+# while True:
+#     print("Total miles for all trucks:", truck1.miles + truck2.miles + truck3.miles)
+#     # diplay a prompt that ask what option they would like
+#     start_time, end_time = get_time_interval_from_user()
+#     if start_time is not None and end_time is not None:
+#         display_package_info(packages_table, [truck1, truck2, truck3], start_time, end_time)
+#         another_check = input("Do you want to check another time interval? (yes/no): ")
+#         if another_check.lower() != "yes":
+#             break
+#     else:
+#         print("Invalid time interval.")
 
 
