@@ -41,9 +41,16 @@ loading_package_data("CSV/WGUPS_Package.csv", packages_table)
 
 
 #Loading package to the trucks and assign departure times
-truck1 = Trucks(18, 0.0, "4001 South 700 East", datetime.timedelta(hours=8), [1, 13, 14, 15, 16, 19, 20, 27, 29, 30, 31, 34, 37, 40])
-truck2 = Trucks(18, 0.0, "4001 South 700 East", datetime.timedelta(hours=9, minutes=5), [2, 3, 4, 5, 7, 8, 9, 10, 11, 12, 18, 21, 22, 23, 24, 25, 26, 28, 32, 33, 36, 38, 39])
-truck3 = Trucks(18, 0.0, "4001 South 700 East", datetime.timedelta(hours=11), [6, 17, 35])
+
+truck1 = Trucks(18, 0.0, "4001 South 700 East", datetime.timedelta(hours=8),
+                [1, 13, 14, 15, 16, 19, 20, 29, 30, 31, 34, 37, 40])
+
+truck2 = Trucks(18, 0.0, "4001 South 700 East", datetime.timedelta(hours=9, minutes=5),
+                [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 18, 25, 28, 32, 36, 38])
+
+truck3 = Trucks(18, 0.0, "4001 South 700 East", datetime.timedelta(hours=11),
+                [12, 17, 21, 22, 23, 24, 26, 27, 33, 39, 35])
+
 
 
 def deliver_package(truck, packages_table, address_list, distance_list):
